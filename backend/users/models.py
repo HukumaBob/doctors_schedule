@@ -36,8 +36,8 @@ class User(AbstractUser):
  
 
 class Specialization(models.Model):
-    specialization = models.CharField(max_length=255)
-    
+    code = models.IntegerField(primary_key=True)
+    specialization = models.CharField(max_length=100)    
     def __str__(self):
         return self.specialization    
 
@@ -62,7 +62,6 @@ class UserProfile(models.Model):
     modality = models.ManyToManyField(Modality, through='UserProfileModality')
     wage_rate = models.DecimalField(
         max_digits=3, decimal_places=2, choices=WAGE_CHOICES, default=1)
-    date_of_birth = models.DateField()   
 
     def __str__(self):
         return f'{self.position} {self.user}'

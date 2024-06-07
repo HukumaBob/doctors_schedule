@@ -1,6 +1,9 @@
 from django.db import models
 
 class Modality(models.Model):
+    modality_specialization = models.ForeignKey(
+        'users.Specialization', on_delete=models.CASCADE,
+        )
     modality = models.CharField(max_length=255)
 
     def __str__(self):
