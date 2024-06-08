@@ -3,6 +3,7 @@ from django.contrib import admin
 from .models import (
     CalendarDay,
     OperatingMode,
+    ExaminationSchedule,
     )
 
 
@@ -16,4 +17,10 @@ class CalendarDayAdmin(admin.ModelAdmin):
 class OperatingModeAdmin(admin.ModelAdmin):
     list_display = [
         field.name for field in OperatingMode._meta.fields
+        ]
+
+@admin.register(ExaminationSchedule)
+class ExaminationScheduleAdmin(admin.ModelAdmin):
+    list_display = [
+        field.name for field in ExaminationSchedule._meta.fields
         ]

@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from medical_examination.models import MedicalExamination
 
 class CalendarDay(models.Model):
     date = models.DateField(unique=True)
@@ -21,3 +22,12 @@ class OperatingMode(models.Model):
 
     def __str__(self):
         return self.operating_mode    
+    
+class ExaminationSchedule(models.Model):
+    day = models.ForeignKey(CalendarDay, on_delete=models.CASCADE)
+    examination = models.ForeignKey(MedicalExamination, on_delete=models.CASCADE)
+    predicted_count = models.IntegerField(null=True, blank=True)
+    actual_count = models.IntegerField(null=True, blank=True)
+
+    class Meta:
+        unique_together = ('day', 'examination')

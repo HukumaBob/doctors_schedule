@@ -16,5 +16,6 @@ class MedicalExamination(models.Model):
     conventional_units = models.DecimalField(
         max_digits=3, decimal_places=1, default=1
         )
+
     def __str__(self):
         return f'{self.examination_modality}: {self.examination_type}'
