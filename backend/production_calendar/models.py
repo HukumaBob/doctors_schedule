@@ -12,6 +12,9 @@ class CalendarDay(models.Model):
     day_type = models.CharField(max_length=20, choices=DAY_TYPES)
     work_hours = models.DecimalField(max_digits=4, decimal_places=2)
 
+    def __str__(self):
+        return str(self.date)    
+
 class OperatingMode(models.Model):
     code = models.IntegerField(primary_key=True)
     operating_mode = models.CharField(max_length=50)
