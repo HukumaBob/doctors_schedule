@@ -1,7 +1,8 @@
 from django.contrib import admin
 
 from .models import (
-    CalendarDay
+    CalendarDay,
+    OperatingMode,
     )
 
 
@@ -9,4 +10,10 @@ from .models import (
 class CalendarDayAdmin(admin.ModelAdmin):
     list_display = [
         field.name for field in CalendarDay._meta.fields
+        ]
+
+@admin.register(OperatingMode)
+class OperatingModeAdmin(admin.ModelAdmin):
+    list_display = [
+        field.name for field in OperatingMode._meta.fields
         ]

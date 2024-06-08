@@ -5,6 +5,7 @@ from django.contrib.auth.models import AbstractUser, Group, Permission
 from django.forms import ValidationError
 from django.utils.translation import gettext_lazy as _
 from medical_examination.models import Modality
+from production_calendar.models import OperatingMode
 
 
 class User(AbstractUser):
@@ -54,6 +55,7 @@ class UserProfile(models.Model):
         (1.0, '1.0'),
         (1.25, '1.25'),
     ]
+
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     phone = models.CharField(max_length=255)
     place_of_work = models.CharField(max_length=255)
@@ -61,7 +63,9 @@ class UserProfile(models.Model):
     specialization = models.ForeignKey(Specialization, on_delete=models.CASCADE)
     modality = models.ManyToManyField(Modality, through='UserProfileModality')
     wage_rate = models.DecimalField(
-        max_digits=3, decimal_places=2, choices=WAGE_CHOICES, default=1)
+        max_digits=3, decimal_places=2, choices=WAGE_CHOICES, default=1
+        )
+    operating_mode = models.ForeignKey(OperatingMode, on_delete=models.CASCADE)
 
     def __str__(self):
         return f'{self.position} {self.user}'

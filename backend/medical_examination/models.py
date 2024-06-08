@@ -10,6 +10,7 @@ class Modality(models.Model):
         return self.modality    
 
 class MedicalExamination(models.Model):
+    code = models.IntegerField(primary_key=True)
     examination_modality = models.ForeignKey(Modality, on_delete=models.CASCADE)
     examination_type = models.CharField(max_length=100, blank=True, null=True)
     conventional_units = models.DecimalField(

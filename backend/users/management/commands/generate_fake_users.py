@@ -2,6 +2,7 @@ from django.core.management.base import BaseCommand
 from django.utils.translation import gettext_lazy as _
 from faker import Faker
 from users.models import User, UserProfile, Specialization, Modality, UserProfileModality
+from production_calendar.models import OperatingMode
 import random
 
 class Command(BaseCommand):
@@ -20,6 +21,8 @@ class Command(BaseCommand):
         users = User.objects.all()
         specializations = Specialization.objects.all()
         modalities = Modality.objects.all()
+        operating_mode = OperatingMode.objects.all()
+
 
         for user in users:
             profile, created = UserProfile.objects.get_or_create(
@@ -29,6 +32,7 @@ class Command(BaseCommand):
                 position='doctor',
                 specialization=fake.random.choice(specializations),
                 wage_rate=fake.random.choice([0.25, 0.5, 0.75, 1.0, 1.25]),
+                operating_mode = fake.random.choice(operating_mode)
             )
             self.stdout.write(
                 self.style.SUCCESS(
