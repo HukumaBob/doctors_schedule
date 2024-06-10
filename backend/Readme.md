@@ -2,6 +2,7 @@
 ```
 python manage.py generate_work_calendar
 python manage.py generate_initial_modality
+python manage.py generate_examinations_frequency
 ```
 ### Для тренировки можем внести фейковых юзеров-докторов-рентгенологов ###
 ```
