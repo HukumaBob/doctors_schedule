@@ -57,6 +57,7 @@ class UserProfile(models.Model):
     ]
 
     user = models.OneToOneField(User, on_delete=models.CASCADE)
+    middle_name = models.CharField(max_length=100, blank=True, null=True)
     phone = models.CharField(max_length=255)
     place_of_work = models.CharField(max_length=255)
     position = models.CharField(max_length=255, choices=POSITION_CHOICES)
