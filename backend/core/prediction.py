@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 from datetime import timedelta
 from django.db.models import F
@@ -11,6 +12,7 @@ from statsmodels.tsa.arima.model import ARIMA
 from statsmodels.tsa.statespace.sarimax import SARIMAX
 
 from django.conf import settings
+from core.models import PredictionTuning
 from production_calendar.models import ExaminationSchedule, MedicalExamination
 
 def prepare_data(start_date):
@@ -172,6 +174,9 @@ def prophet(start_date, days_count):
 
     # Использование модели для прогнозирования будущих обследований для каждого обследования
     for examination in examinations:
+        # Получение настроек прогнозирования для этого обследования
+        tuning = PredictionTuning.objects.get(medical_examination_code=examination)
+
         # Подготовка данных для этого обследования
         df = prepare_data_prophet(start_date)
 
@@ -179,23 +184,31 @@ def prophet(start_date, days_count):
         df_examination = df[df['examination_code'] == examination.code]
 
         # Установка нижнего и верхнего пределов прогноза
-        df_examination['floor'] = 0
-        df_examination['cap'] = 200  # Замените 100 на ваше максимальное значение
+        df_examination['floor'] = tuning.floor
+        df_examination['cap'] = tuning.cap
 
         # Создание и обучение модели
-        model = Prophet(growth='logistic')
+        model = Prophet(growth=tuning.growth)
         model.add_country_holidays(country_name='RU')
-        model.add_seasonality(name='montly', period=30.5, fourier_order=5, prior_scale=0.02, mode='multiplicative')
+        model.add_seasonality(
+            name=tuning.seasonality, 
+            period=tuning.seasonality_period, 
+            fourier_order=tuning.seasonality_fourier_order, 
+            prior_scale=tuning.seasonality_prior_scale, 
+            mode='multiplicative')
         model.fit(df_examination)
 
         # Создание dataframe для будущих прогнозов
-        future = model.make_future_dataframe(periods=days_count)  # Используйте days_count для прогнозирования на несколько дней вперед
-        future['floor'] = 0
-        future['cap'] = 200  # Замените 100 на ваше максимальное значение
+        future = model.make_future_dataframe(periods=days_count)
+        future['floor'] = tuning.floor
+        future['cap'] = tuning.cap
 
         # Использование модели для прогнозирования будущих обследований
         forecast = model.predict(future)
-        future_examinations = forecast['yhat'].values[-days_count:]  # Получение последних прогнозируемых значений
+        future_examinations = forecast['yhat'].values[-days_count:]
+
+        # Обеспечение того, что прогнозы не отрицательны
+        future_examinations = np.maximum(future_examinations, 0)
 
         # Обновление базы данных с прогнозируемыми значениями
         for i in range(days_count):
@@ -209,8 +222,16 @@ def prophet(start_date, days_count):
         # Визуализация изменений в тренде
         fig = model.plot(forecast)
         a = add_changepoints_to_plot(fig.gca(), model, forecast)
-        plt.title(f'Prophet: {examination.examination_type}')
+        title_plot = (
+            f'Prophet: {examination.examination_type}\n '
+            f'growth: {tuning.growth}, '
+            f'cap: {str(tuning.cap)}, '
+            f'floor: {str(tuning.floor)}\n'
+            f'seasonality: {tuning.seasonality}, '
+            f'period: {str(tuning.seasonality_period)}, '
+            f'fourier order: {str(tuning.seasonality_fourier_order)}, '
+            f'prior scale: {str(tuning.seasonality_prior_scale)}'            
+            )
+        plt.title(title_plot)
         plt.tight_layout()
         plt.savefig(f'{settings.MEDIA_ROOT}/plots/{examination.code}.png')
-
-           

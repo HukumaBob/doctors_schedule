@@ -1,3 +1,12 @@
 from django.contrib import admin
 
-# Register your models here.
+from .models import (
+    PredictionTuning
+)
+
+
+@admin.register(PredictionTuning)
+class PredictionTuningAdmin(admin.ModelAdmin):
+    list_display = [
+        field.name for field in PredictionTuning._meta.fields
+        ]
