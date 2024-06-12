@@ -63,8 +63,7 @@ class UserProfile(models.Model):
     position = models.CharField(max_length=255, choices=POSITION_CHOICES)
     specialization = models.ForeignKey(Specialization, on_delete=models.CASCADE)
     modality = models.ManyToManyField(Modality, through='UserProfileModality')
-    wage_rate = models.DecimalField(
-        max_digits=3, decimal_places=2, choices=WAGE_CHOICES, default=1
+    wage_rate = models.FloatField(choices=WAGE_CHOICES, default=1
         )
     operating_mode = models.ForeignKey(OperatingMode, on_delete=models.CASCADE)
 
@@ -74,7 +73,7 @@ class UserProfile(models.Model):
 class UserProfileModality(models.Model):
     user_profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
     modality = models.ForeignKey(Modality, on_delete=models.CASCADE)
-    priority = models.BooleanField(default=False, null=True)
+    priority = models.BooleanField(default=False)
     class Meta:
         unique_together = ('user_profile', 'modality')
 
@@ -85,6 +84,8 @@ def validate_priority(sender, instance, **kwargs):
         has_priority = UserProfileModality.objects.filter(
             user_profile=instance.user_profile,
             priority=True
-        ).exists()
+        ).exclude(id=instance.id).exists()
         if has_priority:
             raise ValidationError('Priority for this user already exists.')
+        
+
